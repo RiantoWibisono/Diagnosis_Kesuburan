@@ -1,3 +1,6 @@
+# ========================================================================================================
+# Diagnosis Kesuburan
+# ========================================================================================================
 import numpy as np 
 import pandas as pd 
 
@@ -9,10 +12,7 @@ df = pd.read_csv(
     header = 0
 )
 
-# print(df.head(5))
-# print(df.iloc[0])
-# print(df.isnull().sum())        # Untuk memeriksa apakah pada data terdapat nilai yang belum diisi atau tidak
-
+# ------------------------------------------------------------
 # Mencari tahu pilihan isi dari setiap kolom
 # print(list(dict.fromkeys(df['Season'])))    # ['spring', 'fall', 'winter', 'summer']
 # print(list(dict.fromkeys(df['Age'])))       # [30, 35, 27, 32, 36, 29, 33, 28, 31, 34]
@@ -23,13 +23,14 @@ df = pd.read_csv(
 # print(list(dict.fromkeys(df['FrAl'])))  # ['once a week', 'hardly ever or never', 'several times a week', 'several times a day', 'every day']
 # print(list(dict.fromkeys(df['SmHa']))) # ['occasional', 'daily', 'never']
 # print(list(dict.fromkeys(df['HoSi']))) # [16, 6, 9, 7, 8, 5, 2, 11, 3, 342, 14, 18, 10, 1]        --> data dengan nilai '342' adalah sebuah outlier, maka harus dihapus
-df = df.drop(50)        # membuang data index ke=50 yang nilai HoSi -nya adalah sebuah outlier
+df = df.drop(50)        # membuang data index ke = 50 yang nilai HoSi -nya merupakan sebuah outlier
 # print(list(dict.fromkeys(df['Diagnosis']))) # ['Normal', 'Altered']
 
-# ============================================================================================================
-# 1. Label Encoder
+# ------------------------------------------------------------
+# Label Encoder
 from sklearn.preprocessing import LabelEncoder
 label = LabelEncoder()
+
 df['ChDi'] = label.fit_transform(df['ChDi'])
 # print(label.classes_)       # ['no' 'yes']
 
@@ -52,13 +53,11 @@ df['Diagnosis'] = label.fit_transform(df['Diagnosis'])
 # print(label.classes_)       # ['Altered' 'Normal']
 
 df = df.drop(['Season'], axis = 1)
-
-# print(df)
 dfX = df.drop(['Diagnosis'], axis = 1)
-# print(dfX)
 dfY = df['Diagnosis']
 
-# 2. One Hot Encoder
+# ------------------------------------------------------------
+# One Hot Encoder
 from sklearn.preprocessing import OneHotEncoder
 from sklearn.compose import ColumnTransformer
 
@@ -69,13 +68,15 @@ coltrans = ColumnTransformer(
 
 dfX = np.array(coltrans.fit_transform(dfX))
 
-# print(dfX[0])       
-# ^ menghasilkan:
-# [  0.      1.     0.       0.    0.    1.      0.       0.      0.   0.   1.   30.   0.   1.   1.   16.]     , dimana:
-# ||<3mths >3mnths noFev||evryDay nvr 1/week svrl/day svrl/week||daily nvr occs||Age  ChDi AcTr SuIn HoSi
+'''
+print(dfX[0])       
+^ menghasilkan:
+    [  0.      1.     0.       0.    0.    1.      0.       0.      0.   0.   1.   30.   0.   1.   1.   16.]     , dimana:
+    ||<3mths >3mnths noFev||evryDay nvr 1/week svrl/day svrl/week||daily nvr occs||Age  ChDi AcTr SuIn HoSi
+'''
 
-# ============================================================================================================
-# Splitting
+# ------------------------------------------------------------
+# Splitting dataset
 from sklearn.model_selection import train_test_split
 xtr, xts, ytr, yts = train_test_split(
     dfX,
@@ -83,35 +84,22 @@ xtr, xts, ytr, yts = train_test_split(
     test_size = .1
 )
 
-# print(xts[0])
-# print(yts)
-
-# ============================================================================================================
+# ------------------------------------------------------------
 # Logistic Regression
 from sklearn.linear_model import LogisticRegression
 modelLog = LogisticRegression(solver = 'liblinear')
 modelLog.fit(xtr,ytr)
 
-print(round(modelLog.score(xts, yts) * 100, 2), '%')
-print(modelLog.predict(xts[0].reshape(1, -1)))
-
-
-# ============================================================================================================
+# ------------------------------------------------------------
 # Extreme Random Forest
 from sklearn.ensemble import ExtraTreesClassifier
 modelExtra = ExtraTreesClassifier(n_estimators=50)
 modelExtra.fit(xtr, ytr)
 
-print(round(modelExtra.score(xts, yts) * 100, 2), '%')
-print(modelExtra.predict(xts[0].reshape(1, -1)))
-
-# ============================================================================================================
+# ------------------------------------------------------------
 # K-Nearest Neighbors
 from sklearn.neighbors import KNeighborsClassifier
 modelKNN = KNeighborsClassifier(
-    n_neighbors = 10        # n neighbors = sqrt(100) = 10
+    n_neighbors = 10        # n neighbors = sqrt(jumlah data) = sqrt(100) = 10
 )
 modelKNN.fit(xtr, ytr)
-
-print(round(modelKNN.score(xts, yts) * 100, 2), '%')
-print(modelKNN.predict(xts[0].reshape(1, -1)))

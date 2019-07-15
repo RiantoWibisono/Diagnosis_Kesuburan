@@ -1,3 +1,6 @@
+# ========================================================================================================
+# Diagnosis Kesuburan
+# ========================================================================================================
 import numpy as np 
 import pandas as pd 
 
@@ -56,8 +59,11 @@ modelKNN = KNeighborsClassifier(
 )
 modelKNN.fit(xtr, ytr)
  
-# ============================================================================================================
+# ------------------------------------------------------------
 # Prediksi data kelima pasien wanita
+# Keterangan: karena deskripsi untuk setiap pasien tidak seimbang (banyak data yang diperlukan tidak ada), maka untuk nilai-nilai berikut:
+# 1. Untuk child diseases, accident or serious trauma, surgical intervention, dan high fevers in the last years dianggap tidak ada / tidak pernah 
+# 2. Untuk no of hours spent sitting in a day, diambil nilai normal rata-rata yaitu 7 jam per hari, kecuali untuk bebi diambil 18 jam karena bebi tidak memiliki kaki
 arin = [0, 0, 1, 1, 0, 0, 0, 0, 1, 0, 0, 29, 0, 0, 0, 5]
 bebi = [0, 0, 1, 0, 0, 0, 0, 1, 0, 1, 0, 31, 1, 1, 1, 18]
 caca = [1, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 25, 1, 0, 0, 7]
